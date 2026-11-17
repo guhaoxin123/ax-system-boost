@@ -1,0 +1,8 @@
+id=ghx_system_boost
+name=全机型系统优化
+version=2.4
+versionCode=3
+author=ghx
+description=自动识别 MTK / 高通与手机品牌：释放 CPU/GPU 频率、压温控、调内存与 IO、清理云控与无用进程，后台常驻维持。
+banner=banner.jpg
+axeronPlugin=10400

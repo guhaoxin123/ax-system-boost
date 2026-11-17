@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 打包模块
+        run: |
+          set -e
+          ver=$(grep '^version=' module.prop | head -1 | cut -d= -f2-)
+          name=$(grep '^name=' module.prop | head -1 | cut -d= -f2-)
+          repo=${GITHUB_REPOSITORY##*/}
+          echo "TAG=v${ver}" >> $GITHUB_ENV
+          echo "MNAME=${name}" >> $GITHUB_ENV
+          mkdir -p dist
+          zip -r "dist/${repo}-v${ver}.zip" . \
+            -x '.git/*' -x '.github/*' -x 'dist/*' -x 'README.md' -x '.gitignore'
+          ls -l dist
+
+      - name: 发布发行版
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" dist/*.zip --title "$TAG · $MNAME" \
+            --notes "自动打包的模块 zip，下载后直接在 AxManager 里导入安装。" \
+            || gh release upload "$TAG" dist/*.zip --clobber
